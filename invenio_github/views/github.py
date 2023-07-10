@@ -68,7 +68,7 @@ blueprint = Blueprint(
 
 @blueprint.route("/")
 @login_required
-@request_session_token()
+#@request_session_token()
 @register_menu(  # TODO modify?
     blueprint,
     "settings.github",
@@ -90,19 +90,19 @@ def get_repositories():
     """Display list of the user's repositories."""
     github = GitHubAPI(user_id=current_user.id)
     ctx = dict(connected=False)
+    if github.session_token:
+        # Generate the repositories view object
+        repos = github.get_user_repositories()
+        last_sync = github.get_last_sync_time()
 
-    # Generate the repositories view object
-    repos = github.get_user_repositories()
-    last_sync = github.get_last_sync_time()
-
-    ctx.update(
-        {
-            # TODO maybe can be refactored. e.g. have two templates and render the correct one.
-            "connected": True,
-            "repos": sorted(repos.items(), key=lambda x: x[1]["full_name"]),
-            "last_sync": last_sync,
-        }
-    )
+        ctx.update(
+            {
+                # TODO maybe can be refactored. e.g. have two templates and render the correct one.
+                "connected": True,
+                "repos": sorted(repos.items(), key=lambda x: x[1]["full_name"]),
+                "last_sync": last_sync,
+            }
+        )
 
     return render_template(current_app.config["GITHUB_TEMPLATE_INDEX"], **ctx)
 

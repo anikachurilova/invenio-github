@@ -18,44 +18,57 @@
 #}
 
 {%- macro panel_start(title, icon="", btn_text='', btn='', btn_icon='',
-                      btn_href='', btn_class='btn-default', btn_name='',
-                      btn2='', btn_icon2='', btn_href2='', btn_class2='btn-default',
-                      btn_name2='', id="", with_body=True, panel_extra_class="panel-default") %}
+                      btn_href='', btn_class='', btn_id='', btn_name='',
+                      btn2='', btn_icon2='', btn_href2='', btn_class2='basic secondary',
+                      btn_name2='', id="", with_body=True, panel_extra_class="secondary") %}
 {%- block panel_start scoped %}
-<div class="panel-group panel-bot-margin"{% if id %} id="{{id}}"{% endif %}>
-    <div class="panel {{panel_extra_class}}">
+<div class="ui segments" {% if id %} id="{{ id }}" {% endif %}>
+    <div class="ui segment {{panel_extra_class}}">
         {%- block panel_heading scoped %}
-        <div class="panel-heading">
-            <strong>{%if icon %}<i class="{{icon}}"></i>{% endif %} {{title}}</strong>
+        <div class="ui equal width grid">
+          <div class="column">
+            <strong class="ui header">{%if icon %}<i class="{{ icon }}"></i>{% endif %}{{ title }}</strong>
+          </div>
+          <div class="right floated right aligned column">
             {%- if btn and (btn_href or btn_text) -%}
-            <div class="pull-right" style="margin-left: 5px;">
-            {%- if btn_text %}
-                <small class="text-muted" style="padding-right: 10px;">(updated {{last_sync}})</small>
-            {%- endif %}
-            {%- if btn_href %}
-            <a class="pull-right btn btn-xs {{btn_class}}" href="{{btn_href}}">{% if btn_icon %}<i class="{{btn_icon}}"></i> {% endif %}{{btn}}</a>
-            {%- else %}
-            {%- if btn_name %}
-            <button name="{{btn_name}}" class="btn btn-xs {{btn_class}}">{% if btn_icon %}<i class="{{btn_icon}}"></i> {% endif %}{{btn}}</button>
-            {%- endif %}
-            {%- endif %}
-            </div>
+              {%- if btn_text %}
+              <a class="ui basic mini label">(updated {{last_sync}})</a>
+              {%- endif %}
+              {%- if btn_href %}
+                <a class="ui basic tiny button {{ btn_class }}" href="{{ btn_href }}">
+                  {% if btn_icon %}<i class="{{ btn_icon }}"></i> {% endif %}{{ btn }}
+                </a>
+              {%- elif btn_name and btn_id %}
+                <button id="{{ btn_id }}" name="{{ btn_name }}" class="ui compact tiny button {{ btn_class }}">{% if btn_icon %}<i class="{{ btn_icon }}"></i> {% endif %}{{ btn }}</button>
+                <script>
+                    document.getElementById('sync_repos').addEventListener('click', function() {
+                      var xhr = new XMLHttpRequest();
+                      var url = '/api/user/github/repositories/sync'; // Replace with your desired URL
+
+                      xhr.open('POST', url, true);
+                      xhr.setRequestHeader('Content-Type', 'application/json');
+
+                      xhr.send();
+                    });
+                </script>
+              {%- endif %}
             {%- endif -%}
+
             {%- if btn2 and btn_href2 -%}
-            <div class="pull-right" style="margin-left: 5px;">
-            {%- if btn_href2 %}
-            <a class="pull-right btn btn-xs {{btn_class2}}" href="{{btn_href2}}">{% if btn_icon2 %}<i class="{{btn_icon2}}"></i> {% endif %}{{btn2}}</a>
-            {%- else %}
-            {%- if btn_name2 %}
-            <button name="{{btn_name2}}" class="btn btn-xs {{btn_class2}}">{% if btn_icon2 %}<i class="{{btn_icon2}}"></i> {% endif %}{{btn2}}</button>
-            {%- endif %}
-            {%- endif %}
-            </div>
+              {%- if btn_href2 %}
+                <a class="ui compact tiny button {{ btn_class2 }}" href="{{ btn_href2 }}">{% if btn_icon2 %}<i class="{{ btn_icon2 }}"></i> {% endif %}{{ btn2 }}</a>
+              {%- elif btn_name2 %}
+                <button name="{{ btn_name2 }}" class="ui compact tiny button {{ btn_class2 }}">{% if btn_icon2 %}<i class="{{ btn_icon2 }}"></i> {% endif %}{{ btn2 }}</button>
+              {%- endif %}
             {%- endif -%}
+          </div>
         </div>
+      </div>
         {%- endblock %}
+
+
         {%- if with_body %}
-        <div class="panel-body">
+        <div class="ui segment">
         {%- endif %}
 {%- endblock %}
 {%- endmacro %}
@@ -66,7 +79,6 @@
         {%- if with_body %}
         </div>
         {%- endif %}
-    </div>
 </div>
 {%- endblock %}
 {%- endmacro %}
@@ -75,8 +87,12 @@
 {%- block repo_switch scoped %}
   <i class="hook-status fa" data-repo-id="{{repo_id}}"></i>
   {%- set inaccessible = (repo and repo.user_id and (repo.user_id != current_user.id)) %}
+
+<div class="ui toggle checkbox">
   <span{%- if inaccessible %} data-toggle="tooltip" data-placement="top" title="{{_('This repository is managed by another user of your GitHub organization.')}}"{%- endif %}>
   <input type="checkbox"{{' disabled' if inaccessible}}{{ ' checked' if repo and repo.enabled }} data-size="{{size}}" data-animate="true" data-repo-id="{{repo_id}}">
+  <label></label>
   </span>
+</div>
 {%- endblock %}
 {%- endmacro %}

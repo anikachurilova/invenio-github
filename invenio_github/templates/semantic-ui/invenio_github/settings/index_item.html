@@ -19,14 +19,15 @@
 {%- from "invenio_github/helpers.html" import doi_badge with context -%}
 {%- set doi_url = None %}
 {%- set release = repo.get('latest') %}
-<div class="panel-body release {{release.model.status.title|lower if release.model else ''}}">
-  <div class="row">
-    <div class="col-md-9">
-      <h4>
+
+<div class="ui grid">
+  <div class="fourteen wide column">
+    <div class="ui basic segment">
+          <h4>
         <a href="https://github.com/{{repo.full_name}}" data-toggle="tooltip" title="{{ _('Go to GitHub.') }}">
           <i class="fa fa-github text-muted"></i>
         </a>
-        <a href="{{ url_for('.repository', name=repo.full_name) }}">{{ repo.full_name }}</a>
+        <a href="{{ url_for('.get_repository', repo_name=repo.full_name) }}">{{ repo.full_name }}</a>
       </h4>
       {%- if release.pid %}
       <p>
@@ -34,13 +35,13 @@
       </p>
       {%- endif %}
     </div>
-    <div class="col-md-3">
-      <span class="pull-right switch">
+
+
+  </div>
+  <div class="two wide column">
         {{helpers.repo_switch(repo.instance, repo_id)}}
-      </span>
-    </div>
   </div>
 </div>
 {%- if not loop.last %}
-<hr />
+<div class="ui divider"></div>
 {%- endif %}
